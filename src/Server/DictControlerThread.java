@@ -1,9 +1,11 @@
 package Server;
 
+import java.awt.print.Printable;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
@@ -11,6 +13,7 @@ import java.rmi.activation.ActivationGroupDesc.CommandEnvironment;
 import java.sql.ClientInfoStatus;
 
 import javax.imageio.IIOException;
+import javax.management.Query;
 
 import StateCode.StateCode;
 
@@ -50,16 +53,19 @@ public class DictControlerThread extends Thread{
 			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
 			int command = Integer.parseInt(reader.readLine());
 			String word = reader.readLine();
-			System.out.println("-- Get Request --\n  Command: " + state2String(command) + "\n  word: " + word);
+			server.printOnBoth("-- Get Request --\n  Command: " + state2String(command) + "\n  word: " + word);
 			int isSuccess = StateCode.FAIL;	
 			String meaning = "";
+			
 			switch (command) {
 			case StateCode.QUERY:
 				if (dict.isWordExist(word)) {
 					meaning = dict.query(word);
 					isSuccess = StateCode.SUCCESS;
+					server.printOnBoth("QUERY SUCCESS!");
 				} else {
 					isSuccess = StateCode.FAIL;
+					server.printOnBoth("QUERY FAIL: Word Not Exist!");
 				}
 				writer.write(String.valueOf(isSuccess) + '\n');
 				writer.write(meaning);
@@ -67,11 +73,25 @@ public class DictControlerThread extends Thread{
 				break;
 			case StateCode.ADD:
 				if (!dict.isWordExist(word)) {
-					meaning = reader.readLine();
+					String temp = "";
+//					Dont not wht not work!!!
+//					while ((temp = reader.readLine()) != null) {
+//						meaning = meaning + temp + '\n'; 
+//					}
+					while (true) {
+						temp = reader.readLine();
+						System.out.println(temp);
+						if (temp.equals("EOF")) {
+							break;
+						} else {
+							meaning = meaning + temp + '\n'; 
+						}
+					}
 					dict.add(word, meaning);
 					isSuccess = StateCode.SUCCESS;
+					server.printOnBoth("ADD SUCCESS: " + word + "\nMeaning: " + meaning);
 				} else {
-					System.out.println("Warning: Word exist");
+					server.printOnBoth("ADD FAIL: Word Exist!");
 					isSuccess = StateCode.FAIL;
 				}
 				writer.write(String.valueOf(isSuccess) + '\n');
@@ -82,8 +102,10 @@ public class DictControlerThread extends Thread{
 				if (dict.isWordExist(word)) {
 					dict.remove(word);
 					isSuccess = StateCode.SUCCESS;
+					server.printOnBoth("REMOVE SUCCESS: " + word);
 				} else {
 					isSuccess = StateCode.FAIL;
+					server.printOnBoth("ADD FAIL: Word Exist!");
 				}
 				writer.write(String.valueOf(isSuccess) + '\n');
 				writer.write(meaning);

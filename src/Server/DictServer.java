@@ -11,7 +11,7 @@ public class DictServer {
 	private Dictionary dict;
 	private ServerSocket server;
 	private int numOfClient = 0;
-	
+	private DictServerUI ui;
 	/**
 	 * Launch the application.
 	 */
@@ -26,6 +26,11 @@ public class DictServer {
 		}
 	}
 	
+	public void printOnBoth(String str) {
+		System.out.println(str);
+		if (ui != null) ui.getlogArea().append(str + '\n');
+	}
+	
 	private void printInitialStats() throws UnknownHostException {
 		InetAddress ip = InetAddress.getLocalHost();
 		System.out.println("Server Running...");
@@ -38,6 +43,7 @@ public class DictServer {
 	public DictServer(String p, String dithPath) {
 		this.port = Integer.parseInt(p);
 		this.dict = new Dictionary(dithPath);
+		this.ui = null;
 		this.server = null;
 	}
 	
@@ -45,10 +51,12 @@ public class DictServer {
 		try {
 			this.server = new ServerSocket(this.port);
 			printInitialStats();
+			this.ui = new DictServerUI(InetAddress.getLocalHost().getHostAddress(), String.valueOf(port), dict.getPath());
+			ui.getFrame().setVisible(true);
 			while(true) {
 				Socket client = server.accept();
 				numOfClient++;
-				System.out.println("Server: A client connect. Current Num of client: " + String.valueOf(numOfClient));
+				printOnBoth("Server: A client connect.\n Current Num of client: " + String.valueOf(numOfClient));
 				Thread dcThread = new Thread(new DictControlerThread(this, client, dict));
 				dcThread.start();
 			}
@@ -58,9 +66,9 @@ public class DictServer {
 	}
 	
 	public synchronized void clientDisconnect() {
-		System.out.println("Server: A client has disconnected");
+		printOnBoth("Server: A client has disconnected");
 		numOfClient--;
-		System.out.println("Server: Number of clients: " + numOfClient + "\n");
+		printOnBoth("Server: Number of clients: " + numOfClient + "\n");
 	}
 	
 	public void setPort(String p) {

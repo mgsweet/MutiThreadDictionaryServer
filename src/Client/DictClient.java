@@ -42,7 +42,7 @@ public class DictClient {
 	}
 	
 	private String createRequestStr(int command, String word, String meaning) {
-		return (String.valueOf(command) + '\n' + word + '\n' + meaning + '\n');
+		return (String.valueOf(command) + '\n' + word + '\n' + meaning + "\nEOF\n");
 	}
 	
 	private void addLog(int state, String word, String meaning) {

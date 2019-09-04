@@ -30,6 +30,10 @@ public class Dictionary {
 		}
 	}
 	
+	public String getPath() {
+		return path;
+	}
+	
 	private void setDefaultDict() {
 		path = "dictionary.dat";
 		try {
