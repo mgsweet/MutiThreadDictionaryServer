@@ -4,13 +4,17 @@ import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.text.ParseException;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 import javax.xml.ws.handler.MessageContext;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 
 import StateCode.StateCode;
@@ -41,9 +45,25 @@ public class DictClient {
 		});
 	}
 	
-	private String createRequestStr(int command, String word, String meaning) {
-		return (String.valueOf(command) + '\n' + word + '\n' + meaning + "\nEOF\n");
+	private JSONObject createReqJSON(int command, String word, String meaning) {
+		JSONObject requestJson = new JSONObject();
+		requestJson.put("command", String.valueOf(command));
+		requestJson.put("word", word);
+		requestJson.put("meaning", meaning);
+		return requestJson;
 	}
+	
+	private JSONObject parseResString(String res) {
+		JSONObject resJSON = null;
+		try {
+			JSONParser parser = new JSONParser();
+			resJSON = (JSONObject) parser.parse(res);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return resJSON;
+	}
+	
 	
 	private void addLog(int state, String word, String meaning) {
 		System.out.println("--LOG: " + String.valueOf(operationCount) + " ------");
@@ -94,11 +114,13 @@ public class DictClient {
 		try {
 				addLog(StateCode.ADD, word, meaning);
 				Socket socket = new Socket(address, port);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-				writer.write(createRequestStr(StateCode.ADD, word, meaning));
+				DataInputStream reader = new DataInputStream(socket.getInputStream());
+				DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+				writer.writeUTF(createReqJSON(StateCode.ADD, word, meaning).toJSONString());
 				writer.flush();
-				state = Integer.parseInt(reader.readLine());
+				String res = reader.readUTF();
+				JSONObject resJSON = parseResString(res);
+				state = Integer.parseInt(resJSON.get("state").toString());
 				reader.close();
 				writer.close();
 				socket.close();
@@ -115,11 +137,13 @@ public class DictClient {
 		try {
 				addLog(StateCode.REMOVE, word, "");
 				Socket socket = new Socket(address, port);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-				writer.write(createRequestStr(StateCode.REMOVE, word, ""));
+				DataInputStream reader = new DataInputStream(socket.getInputStream());
+				DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+				writer.writeUTF(createReqJSON(StateCode.REMOVE, word, "").toJSONString());
 				writer.flush();
-				state = Integer.parseInt(reader.readLine());
+				String res = reader.readUTF();
+				JSONObject resJSON = parseResString(res);
+				state = Integer.parseInt(resJSON.get("state").toString());
 				reader.close();
 				writer.close();
 				socket.close();
@@ -137,16 +161,15 @@ public class DictClient {
 		try {
 				addLog(StateCode.QUERY, word, "");
 				Socket socket = new Socket(address, port);
-				BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream(), "UTF-8"));
-				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
-				writer.write(createRequestStr(StateCode.QUERY, word, ""));
+				DataInputStream reader = new DataInputStream(socket.getInputStream());
+				DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
+				writer.writeUTF(createReqJSON(StateCode.QUERY, word, "").toJSONString());
 				writer.flush();
-				state = Integer.parseInt(reader.readLine());
+				String res = reader.readUTF();
+				JSONObject resJSON = parseResString(res);
+				state = Integer.parseInt(resJSON.get("state").toString());
 				if (state == StateCode.SUCCESS) {
-					String temp;
-					while ((temp = reader.readLine()) != null) {
-						meaning = meaning + temp + '\n'; 
-					}
+					meaning = (String) resJSON.get("meaning");
 				}
 				reader.close();
 				writer.close();

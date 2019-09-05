@@ -15,6 +15,9 @@ import java.sql.ClientInfoStatus;
 import javax.imageio.IIOException;
 import javax.management.Query;
 
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import StateCode.StateCode;
 
 public class DictControlerThread extends Thread{
@@ -46,69 +49,71 @@ public class DictControlerThread extends Thread{
 		this.dict = dict;
 	}
 	
+	private JSONObject createResJSON(int state, String meaning) {
+		JSONObject requestJson = new JSONObject();
+		requestJson.put("state", String.valueOf(state));
+		requestJson.put("meaning", meaning);
+		return requestJson;
+	}
+	
+	private JSONObject parseReqString(String res) {
+		JSONObject reqJSON = null;
+		try {
+			JSONParser parser = new JSONParser();
+			reqJSON = (JSONObject) parser.parse(res);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return reqJSON;
+	}
+	
 	@Override
 	public void run() {
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream(), "UTF-8"));
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(clientSocket.getOutputStream(), "UTF-8"));
-			int command = Integer.parseInt(reader.readLine());
-			String word = reader.readLine();
+			DataInputStream reader = new DataInputStream(clientSocket.getInputStream());
+			DataOutputStream writer = new DataOutputStream(clientSocket.getOutputStream());
+			JSONObject reqJSON = parseReqString(reader.readUTF());
+			int command = Integer.parseInt(reqJSON.get("command").toString());
+			String word = (String) reqJSON.get("word");
 			server.printOnBoth("-- Get Request --\n  Command: " + state2String(command) + "\n  word: " + word);
-			int isSuccess = StateCode.FAIL;	
-			String meaning = "";
+			int state = StateCode.FAIL;	
+			String meaning = (String) reqJSON.get("meaning");
 			
 			switch (command) {
 			case StateCode.QUERY:
 				if (dict.isWordExist(word)) {
 					meaning = dict.query(word);
-					isSuccess = StateCode.SUCCESS;
+					state = StateCode.SUCCESS;
 					server.printOnBoth("QUERY SUCCESS!");
 				} else {
-					isSuccess = StateCode.FAIL;
+					state = StateCode.FAIL;
 					server.printOnBoth("QUERY FAIL: Word Not Exist!");
 				}
-				writer.write(String.valueOf(isSuccess) + '\n');
-				writer.write(meaning);
+				writer.writeUTF(createResJSON(state, meaning).toJSONString());
 				writer.flush();
 				break;
 			case StateCode.ADD:
 				if (!dict.isWordExist(word)) {
-					String temp = "";
-//					Dont not wht not work!!!
-//					while ((temp = reader.readLine()) != null) {
-//						meaning = meaning + temp + '\n'; 
-//					}
-					while (true) {
-						temp = reader.readLine();
-						System.out.println(temp);
-						if (temp.equals("EOF")) {
-							break;
-						} else {
-							meaning = meaning + temp + '\n'; 
-						}
-					}
 					dict.add(word, meaning);
-					isSuccess = StateCode.SUCCESS;
+					state = StateCode.SUCCESS;
 					server.printOnBoth("ADD SUCCESS: " + word + "\nMeaning: " + meaning);
 				} else {
 					server.printOnBoth("ADD FAIL: Word Exist!");
-					isSuccess = StateCode.FAIL;
+					state = StateCode.FAIL;
 				}
-				writer.write(String.valueOf(isSuccess) + '\n');
-				writer.write(meaning);
+				writer.writeUTF(createResJSON(state, "").toJSONString());
 				writer.flush();
 				break;
 			case StateCode.REMOVE:
 				if (dict.isWordExist(word)) {
 					dict.remove(word);
-					isSuccess = StateCode.SUCCESS;
+					state = StateCode.SUCCESS;
 					server.printOnBoth("REMOVE SUCCESS: " + word);
 				} else {
-					isSuccess = StateCode.FAIL;
+					state = StateCode.FAIL;
 					server.printOnBoth("ADD FAIL: Word Exist!");
 				}
-				writer.write(String.valueOf(isSuccess) + '\n');
-				writer.write(meaning);
+				writer.writeUTF(createResJSON(state, "").toJSONString());
 				writer.flush();
 				break;
 			default:
