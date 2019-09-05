@@ -1,3 +1,6 @@
+/**
+ * @author Aaron-Qiu, mgsweet@126.com, student_id:1101584
+ */
 package Client;
 
 import javax.swing.JFrame;
@@ -67,7 +70,9 @@ public class DictClientGUI {
 					int confirm = JOptionPane.showConfirmDialog(frame,  "Confirm to Add a new word?", "Confirm Window", JOptionPane.YES_NO_OPTION);
 					if (confirm == JOptionPane.YES_OPTION) {
 						int state = dictClient.add(word, meaning);
-						if(state != StateCode.SUCCESS) {
+						if(state == StateCode.UNKNOWN_HOST) {
+							JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
+						} else if (state == StateCode.FAIL) {
 							JOptionPane.showMessageDialog(frame, "Word Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(frame, "Add Success!", "Tips", JOptionPane.INFORMATION_MESSAGE);
@@ -84,7 +89,9 @@ public class DictClientGUI {
 				if (isValid(word, "", StateCode.QUERY)) {
 					String[] resultArr = dictClient.query(word);
 					int state = Integer.parseInt(resultArr[0]);
-					if(state != StateCode.SUCCESS) {
+					if (state == StateCode.UNKNOWN_HOST) {
+						JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
+					} else if (state == StateCode.FAIL) {
 						JOptionPane.showMessageDialog(frame, "Query Fail\nWord Not Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
 					} else {
 						meaningPane.setText(resultArr[1]);
@@ -101,7 +108,10 @@ public class DictClientGUI {
 					int confirm = JOptionPane.showConfirmDialog(frame,  "Confirm to Remove a new word?", "Confirm Window", JOptionPane.YES_NO_OPTION);
 					if (confirm == JOptionPane.YES_OPTION) {
 						int state = dictClient.remove(word);
-						if(state != StateCode.SUCCESS) {
+						if(state == StateCode.UNKNOWN_HOST) {
+							JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
+						}
+						else if(state == StateCode.FAIL) {
 							JOptionPane.showMessageDialog(frame, "Remove Fail\nWord Not Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(frame, "Remove Success!", "Tips", JOptionPane.INFORMATION_MESSAGE);

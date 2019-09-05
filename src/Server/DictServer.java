@@ -1,4 +1,8 @@
+/**
+ * @author Aaron-Qiu, mgsweet@126.com, student_id:1101584
+ */
 package Server;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -17,10 +21,16 @@ public class DictServer {
 	 */
 	public static void main(String[] args) {
 		try {
+			if (Integer.parseInt(args[0]) <= 1024 || Integer.parseInt(args[0]) >= 49151) {
+				System.out.println("Invalid Port Number: Port number should be between 1024 and 49151!");
+				System.exit(-1);
+			}
 			DictServer dictServer = new DictServer(args[0], args[1]);
 			dictServer.run();
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("Please enter <port> <dictionary-file>");
+			System.out.println("Lack of Parameters:\nPlease run like \"java - jar DictServer.jar <port> <dictionary-file>\"!");
+		} catch (NumberFormatException e) {
+			System.out.println("Invalid Port Number: Port number should be between 1024 and 49151!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -37,7 +47,6 @@ public class DictServer {
 		System.out.println("Current IP address : " + ip.getHostAddress());
 		System.out.println("Port = " + port);	
 		System.out.println("Waiting for clinet connection...\n--------------");
-		
 	}
 	
 	public DictServer(String p, String dithPath) {
@@ -60,6 +69,8 @@ public class DictServer {
 				Thread dcThread = new Thread(new DictControlerThread(this, client, dict));
 				dcThread.start();
 			}
+		} catch (BindException e) {
+			System.out.println("Address already in use (Bind failed), try another address!");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
