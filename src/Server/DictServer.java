@@ -66,7 +66,7 @@ public class DictServer {
 				Socket client = server.accept();
 				numOfClient++;
 				printOnBoth("Server: A client connect.\n Current Num of client: " + String.valueOf(numOfClient));
-				Thread dcThread = new Thread(new DictControlerThread(this, client, dict));
+				DictRequestHandlerThread dcThread = new DictRequestHandlerThread(this, client, dict);
 				dcThread.start();
 			}
 		} catch (BindException e) {

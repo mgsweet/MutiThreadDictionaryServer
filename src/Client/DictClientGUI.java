@@ -71,9 +71,13 @@ public class DictClientGUI {
 					if (confirm == JOptionPane.YES_OPTION) {
 						int state = dictClient.add(word, meaning);
 						if(state == StateCode.UNKNOWN_HOST) {
-							JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", 
+									"Warning", JOptionPane.ERROR_MESSAGE);
 						} else if (state == StateCode.FAIL) {
 							JOptionPane.showMessageDialog(frame, "Word Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
+						} else if (state == StateCode.TIMEOUT) {
+							JOptionPane.showMessageDialog(frame, "Timeout!\nPlease check the server or restart with a correct Address and IP.", 
+									"Warning", JOptionPane.ERROR_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(frame, "Add Success!", "Tips", JOptionPane.INFORMATION_MESSAGE);
 						}
@@ -93,6 +97,9 @@ public class DictClientGUI {
 						JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
 					} else if (state == StateCode.FAIL) {
 						JOptionPane.showMessageDialog(frame, "Query Fail\nWord Not Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
+					} else if (state == StateCode.TIMEOUT) {
+						JOptionPane.showMessageDialog(frame, "Timeout!\nPlease check the server or restart with a correct Address and IP.", 
+								"Warning", JOptionPane.ERROR_MESSAGE);
 					} else {
 						meaningPane.setText(resultArr[1]);
 					}
@@ -111,8 +118,11 @@ public class DictClientGUI {
 						if(state == StateCode.UNKNOWN_HOST) {
 							JOptionPane.showMessageDialog(frame, "Unknown Host!\nPlease restart with a correct Address and IP.", "Warning", JOptionPane.ERROR_MESSAGE);
 						}
-						else if(state == StateCode.FAIL) {
+						else if (state == StateCode.FAIL) {
 							JOptionPane.showMessageDialog(frame, "Remove Fail\nWord Not Exist!", "Warning", JOptionPane.WARNING_MESSAGE);
+						} else if (state == StateCode.TIMEOUT) {
+							JOptionPane.showMessageDialog(frame, "Timeout!\nPlease check the server or restart with a correct Address and IP.", 
+									"Warning", JOptionPane.ERROR_MESSAGE);
 						} else {
 							JOptionPane.showMessageDialog(frame, "Remove Success!", "Tips", JOptionPane.INFORMATION_MESSAGE);
 						}

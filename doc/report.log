@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2019.9.5)  5 SEP 2019 17:13
+This is XeTeX, Version 3.14159265-2.6-0.999991 (TeX Live 2019) (preloaded format=xelatex 2019.9.5)  6 SEP 2019 14:29
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -556,14 +556,80 @@ LaTeX Font Info:    ... okay on input line 19.
 \c@lstlisting=\count143
  [1
 
-] [2] (./report.aux) ) 
-Here is how much of TeX's memory you used:
- 14022 strings out of 492916
- 275591 string characters out of 6133346
- 348970 words of memory out of 5000000
- 17810 multiletter control sequences out of 15000+600000
- 7098 words of font info for 32 fonts, out of 8000000 for 9000
- 1348 hyphenation exceptions out of 8191
- 62i,6n,81p,977b,221s stack positions out of 5000i,500n,10000p,200000b,80000s
+]
+File: ClientUML.png Graphic file (type bmp)
+<ClientUML.png>
 
-Output written on report.xdv (2 pages, 39060 bytes).
+Underfull \hbox (badness 10000) in paragraph at lines 37--41
+
+ []
+
+[2]
+File: clientGUI.png Graphic file (type bmp)
+<clientGUI.png>
+ [3]
+File: ServerUML.png Graphic file (type bmp)
+<ServerUML.png>
+
+Underfull \hbox (badness 10000) in paragraph at lines 64--68
+
+ []
+
+
+Overfull \hbox (0.52133pt too wide) in paragraph at lines 79--79
+[]\TU/lmr/m/n/10 Meaning| 
+ []
+
+
+Overfull \hbox (0.51622pt too wide) in paragraph at lines 76--81
+[][] 
+ []
+
+File: serverGUI.png Graphic file (type bmp)
+<serverGUI.png>
+[4]
+Overfull \hbox (0.51622pt too wide) in paragraph at lines 94--103
+[][] 
+ []
+
+File: InteractionDiagram.png Graphic file (type bmp)
+<InteractionDiagram.png>
+[5]
+Underfull \hbox (badness 10000) in paragraph at lines 122--122
+[]\TU/lmr/m/n/10 Inadequate startup paramaters
+ []
+
+
+Underfull \hbox (badness 4995) in paragraph at lines 125--125
+[]\TU/lmr/m/n/10 The dictionary file not exists
+ []
+
+
+Overfull \hbox (0.5162pt too wide) in paragraph at lines 119--131
+[][] 
+ []
+
+
+Underfull \hbox (badness 4913) in paragraph at lines 141--141
+[]\TU/lmr/m/n/10 Connection Timed Out (client
+ []
+
+
+Overfull \hbox (0.5162pt too wide) in paragraph at lines 138--144
+[][] 
+ []
+
+[6]
+File: timeoutUML.png Graphic file (type bmp)
+<timeoutUML.png>
+ [7] [8] (./report.aux) ) 
+Here is how much of TeX's memory you used:
+ 14060 strings out of 492916
+ 276272 string characters out of 6133346
+ 348970 words of memory out of 5000000
+ 17836 multiletter control sequences out of 15000+600000
+ 7568 words of font info for 36 fonts, out of 8000000 for 9000
+ 1348 hyphenation exceptions out of 8191
+ 62i,11n,81p,1007b,330s stack positions out of 5000i,500n,10000p,200000b,80000s
+
+Output written on report.xdv (8 pages, 114980 bytes).

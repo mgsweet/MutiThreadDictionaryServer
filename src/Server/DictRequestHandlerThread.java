@@ -23,7 +23,7 @@ import org.json.simple.parser.JSONParser;
 
 import StateCode.StateCode;
 
-public class DictControlerThread extends Thread{
+public class DictRequestHandlerThread extends Thread{
 	private Dictionary dict;
 	private Socket clientSocket;
 	private DictServer server;
@@ -46,7 +46,7 @@ public class DictControlerThread extends Thread{
 		return s;
 	}
 	
-	public DictControlerThread(DictServer server, Socket client, Dictionary dict) {
+	public DictRequestHandlerThread(DictServer server, Socket client, Dictionary dict) {
 		this.server = server;
 		this.clientSocket = client;
 		this.dict = dict;

@@ -13,23 +13,27 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.text.ParseException;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
 import javax.xml.ws.handler.MessageContext;
 
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.omg.CORBA.CTX_RESTRICT_SCOPE;
 import org.omg.CosNaming.NamingContextExtPackage.AddressHelper;
 
 import StateCode.StateCode;
 
 public class DictClient {
-	String address;
-	int port;
-	int operationCount = 0;
-	DictClientGUI ui;
+	private String address;
+	private int port;
+	private int operationCount = 0;
+	private DictClientGUI ui;
 	
 	/**
 	 * Launch the application.
@@ -72,26 +76,6 @@ public class DictClient {
 			e.printStackTrace();
 		}
 	}
-	
-	private JSONObject createReqJSON(int command, String word, String meaning) {
-		JSONObject requestJson = new JSONObject();
-		requestJson.put("command", String.valueOf(command));
-		requestJson.put("word", word);
-		requestJson.put("meaning", meaning);
-		return requestJson;
-	}
-	
-	private JSONObject parseResString(String res) {
-		JSONObject resJSON = null;
-		try {
-			JSONParser parser = new JSONParser();
-			resJSON = (JSONObject) parser.parse(res);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return resJSON;
-	}
-	
 	
 	private void addLog(int state, String word, String meaning) {
 		System.out.println("--LOG: " + String.valueOf(operationCount) + " ------");
@@ -146,49 +130,29 @@ public class DictClient {
 		return resultArr;
 	}
 	
-	private String[] execute(int operation, String word, String meaning) {
+	private String[] execute(int command, String word, String meaning) {
 		int state = StateCode.FAIL;
-		Socket socket = null;
-		if (operation != StateCode.ADD) {
-			meaning = "";
-		}
+		addLog(command, word, meaning);
 		try {
-				addLog(operation, word, meaning);
-				socket = new Socket(address, port);
-				DataInputStream reader = new DataInputStream(socket.getInputStream());
-				DataOutputStream writer = new DataOutputStream(socket.getOutputStream());
-				writer.writeUTF(createReqJSON(operation, word, meaning).toJSONString());
-				writer.flush();
-				String res = reader.readUTF();
-				JSONObject resJSON = parseResString(res);
-				state = Integer.parseInt(resJSON.get("state").toString());
-				if (state == StateCode.SUCCESS) {
-					meaning = (String) resJSON.get("meaning");
-				}
-				reader.close();
-				writer.close();
-				printResponse(state, meaning);
-				
-		} catch (UnknownHostException e) {
-			state = StateCode.UNKNOWN_HOST;
-			System.out.println("Error: UNKNOWN HOST!");
-		} catch (ConnectException e) {
-			state = StateCode.COLLECTIONG_REFUSED;
-			System.out.println("Error: COLLECTIONG REFUSED!");
-		} catch (IOException e) {
-			state = StateCode.IO_ERROR;
-			System.out.println("Error: I/O ERROR!");
+			System.out.println("Trying to connect to server...");
+			ExecuteThread eThread = new ExecuteThread(address, port, command, word, meaning);
+			eThread.start();
+			eThread.join(2000);
+			if (eThread.isAlive()) {
+				eThread.interrupt();
+				throw new TimeoutException();
+			}
+			String[] eThreadResult = eThread.getResult();
+			state = Integer.parseInt(eThreadResult[0]);
+			meaning = eThreadResult[1];
+			System.out.println("Connect Success!");
+		} catch (TimeoutException e) {
+			state = StateCode.TIMEOUT;
+			meaning = "";
 		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			if (socket != null) {
-				try {
-					socket.close();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
 		}
+		printResponse(state, meaning);
 		String[] resultArr = {String.valueOf(state), meaning};
 		return resultArr;
 	}

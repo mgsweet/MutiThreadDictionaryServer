@@ -1,0 +1,8 @@
+# ignore submission
+submission/
+
+# ignore intermediate output of LaTeX
+doc/!report.pdf
+
+# ignore macFile
+.DS_Store
