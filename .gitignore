@@ -2,7 +2,7 @@
 submission/
 
 # ignore intermediate output of LaTeX
-doc/!report.pdf
+doc/
 
 # ignore macFile
 .DS_Store
