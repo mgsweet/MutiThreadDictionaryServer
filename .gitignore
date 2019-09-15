@@ -7,6 +7,9 @@ doc/!report.pdf
 # ignore macFile
 .DS_Store
 
-.setting
+.settings
+.classpath
+.project
+
 
 bin/
